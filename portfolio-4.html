@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>박예담 — Statistics Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --paper-dim:#F1EFE8;
+    --ink:#1C2321;
+    --ink-soft:#4A524F;
+    --ink-faint:#8A9290;
+    --teal:#3B6E71;
+    --teal-soft:#3B6E7122;
+    --amber:#C08A3E;
+    --rule:#D8D6CE;
+    --rule-strong:#B9B6AA;
+    --font-kr:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-kr);
+    font-weight:400;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{ font-family:'IBM Plex Mono',monospace; }
+  h1,h2,h3{ font-family:var(--font-kr); font-weight:700; letter-spacing:-0.01em; }
+  a{ color:inherit; }
+  :focus-visible{ outline:2px solid var(--teal); outline-offset:3px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+  }
+
+  .wrap{ max-width:920px; margin:0 auto; padding:0 28px; }
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(250,250,247,0.9);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--rule);
+  }
+  .nav-inner{
+    max-width:920px; margin:0 auto; padding:16px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-name{ font-size:1.05rem; font-weight:700; }
+  .nav-name .dim{ color:var(--ink-faint); font-weight:400; margin-left:2px; font-size:0.85rem; }
+  nav ul{ list-style:none; display:flex; gap:24px; }
+  nav a{
+    text-decoration:none; font-size:0.88rem; color:var(--ink-soft); font-weight:500;
+    position:relative; padding-bottom:2px;
+  }
+  nav a:hover{ color:var(--ink); }
+  nav a::after{
+    content:''; position:absolute; left:0; right:0; bottom:-2px; height:1px;
+    background:var(--teal); transform:scaleX(0); transform-origin:left;
+    transition:transform .25s ease;
+  }
+  nav a:hover::after{ transform:scaleX(1); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; overflow:hidden;
+    padding:96px 0 64px;
+    border-bottom:1px solid var(--rule);
+  }
+  .hero-curve{
+    position:absolute; left:50%; top:38%; transform:translate(-50%,-50%);
+    width:min(1100px, 160%); opacity:0.9; pointer-events:none;
+  }
+  .hero-curve path.fill{ fill:var(--teal-soft); }
+  .hero-curve path.line{
+    fill:none; stroke:var(--teal); stroke-width:1.6;
+    stroke-dasharray:1300; stroke-dashoffset:1300;
+    animation:draw 2.4s ease forwards .2s;
+  }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+
+  .hero-inner{ position:relative; }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:0.78rem; letter-spacing:.06em;
+    color:var(--teal); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:''; width:22px; height:1px; background:var(--teal); display:inline-block; }
+  .hero h1{
+    font-size:clamp(2.3rem, 6vw, 3.8rem);
+    line-height:1.18;
+  }
+  .hero .affil{
+    margin-top:16px; color:var(--ink-soft); font-size:1rem;
+  }
+  .hero .interest{
+    margin-top:10px; color:var(--teal); font-size:0.95rem; font-weight:500;
+  }
+  .hero .stat-row{
+    display:flex; gap:34px; margin-top:44px; flex-wrap:wrap;
+  }
+  .stat{ }
+  .stat .n{ font-family:'IBM Plex Mono',monospace; font-size:1.35rem; color:var(--ink); font-weight:500; }
+  .stat .l{ font-size:0.78rem; color:var(--ink-faint); display:block; margin-top:2px; }
+
+  /* ---------- SECTION SHARED ---------- */
+  section{ padding:78px 0; border-bottom:1px solid var(--rule); }
+  section:last-of-type{ border-bottom:none; }
+  .section-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:42px; }
+  .section-num{ font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:0.85rem; }
+  .section-head h2{ font-size:1.6rem; }
+  .section-head .rule{ flex:1; height:1px; background:var(--rule); }
+
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:48px; }
+  .about-grid p{ color:var(--ink-soft); margin-bottom:14px; }
+  .strength-list{ list-style:none; }
+  .strength-list li{
+    position:relative; padding:11px 0 11px 20px; font-size:0.92rem; color:var(--ink-soft);
+    border-bottom:1px dashed var(--rule-strong);
+  }
+  .strength-list li:last-child{ border-bottom:none; }
+  .strength-list li::before{
+    content:''; position:absolute; left:0; top:19px; width:7px; height:7px;
+    background:var(--teal); transform:rotate(45deg);
+  }
+  @media (max-width:720px){ .about-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- SKILLS ---------- */
+  .skill-groups{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); }
+  .skill-card{ background:var(--paper); padding:26px; }
+  .skill-card h3{ font-size:1rem; font-weight:700; }
+  .skill-card .cat-en{ font-family:'IBM Plex Mono',monospace; font-size:0.68rem; color:var(--ink-faint); margin-top:2px; display:block; }
+  .skill-tags{ margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; }
+  .skill-tag{
+    font-size:0.82rem; color:var(--ink-soft); border:1px solid var(--rule-strong);
+    padding:5px 11px; border-radius:2px;
+  }
+  @media (max-width:720px){ .skill-groups{ grid-template-columns:1fr; } }
+
+  /* ---------- TIMELINE (activities/research) ---------- */
+  .tl{ position:relative; padding-left:26px; border-left:1px solid var(--rule); }
+  .tl-group{ margin-bottom:36px; }
+  .tl-group:last-child{ margin-bottom:0; }
+  .tl-year{
+    font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:0.85rem;
+    margin-bottom:16px; position:relative;
+  }
+  .tl-year::before{
+    content:''; position:absolute; left:-31px; top:4px; width:9px; height:9px; border-radius:50%;
+    background:var(--teal); border:2px solid var(--paper); box-shadow:0 0 0 1px var(--teal);
+  }
+  .tl-item{ margin-bottom:16px; }
+  .tl-item:last-child{ margin-bottom:0; }
+  .tl-item .t-title{ font-size:0.95rem; font-weight:700; }
+  .tl-item .t-period{ font-family:'IBM Plex Mono',monospace; font-size:0.75rem; color:var(--ink-faint); margin-left:8px; font-weight:400; }
+  .tl-item .t-desc{ font-size:0.86rem; color:var(--ink-soft); margin-top:4px; }
+
+  /* ---------- RESEARCH INTERESTS & PHILOSOPHY ---------- */
+  .interest-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-bottom:44px; }
+  .interest-card{ background:var(--paper); padding:26px; }
+  .interest-card .tag{
+    font-family:'IBM Plex Mono',monospace; font-size:0.68rem; color:var(--amber);
+  }
+  .interest-card h3{ font-size:1rem; margin-top:10px; }
+  .interest-card p{ font-size:0.85rem; color:var(--ink-soft); margin-top:10px; }
+  .interest-card.placeholder{ border:1px dashed var(--rule-strong); background:transparent; }
+  .interest-card.placeholder p{ color:var(--ink-faint); }
+  @media (max-width:720px){ .interest-grid{ grid-template-columns:1fr; } }
+
+  .subhead{
+    font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--teal);
+    margin-bottom:16px; letter-spacing:.03em;
+  }
+  .paper-list{ list-style:none; margin-bottom:44px; }
+  .paper-list li{
+    padding:14px 0; border-bottom:1px solid var(--rule); display:flex; gap:16px; align-items:baseline;
+  }
+  .paper-list li:first-child{ border-top:1px solid var(--rule); }
+  .paper-list .p-idx{ font-family:'IBM Plex Mono',monospace; color:var(--ink-faint); font-size:0.78rem; flex-shrink:0; }
+  .paper-list .p-body{ flex:1; }
+  .paper-list .p-title{ font-size:0.9rem; color:var(--ink); }
+  .paper-list .p-why{ font-size:0.82rem; color:var(--ink-faint); margin-top:3px; }
+  .paper-list .p-placeholder{ color:var(--ink-faint); font-style:normal; }
+
+  .philosophy-box{
+    background:var(--paper-dim); border-left:2px solid var(--teal);
+    padding:28px 30px; margin-bottom:44px;
+  }
+  .philosophy-box .p-quote{ font-size:1.15rem; line-height:1.6; color:var(--ink); }
+  .philosophy-box .p-quote .fill{ color:var(--ink-faint); }
+  .goal-list{ list-style:none; }
+  .goal-list li{
+    position:relative; padding:12px 0 12px 22px; font-size:0.9rem; color:var(--ink-soft);
+    border-bottom:1px dashed var(--rule-strong);
+  }
+  .goal-list li:last-child{ border-bottom:none; }
+  .goal-list li::before{
+    content:''; position:absolute; left:0; top:20px; width:7px; height:7px;
+    background:var(--amber); transform:rotate(45deg);
+  }
+  .goal-list .fill{ color:var(--ink-faint); }
+
+  /* ---------- FLOW PIPELINE ---------- */
+  .flow-pipeline{ display:flex; margin-bottom:20px; }
+  .flow-step{
+    flex:1; min-width:0; padding:20px 18px; border:1px solid var(--rule);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .flow-step + .flow-step{ border-left:none; }
+  .flow-step .step-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:0.66rem; color:var(--amber); letter-spacing:.03em;
+  }
+  .flow-step h4{ font-size:0.98rem; font-weight:700; }
+  .flow-tags{ display:flex; flex-direction:column; gap:5px; }
+  .flow-tags span{ font-size:0.78rem; color:var(--ink-soft); }
+  .flow-arrow{
+    display:flex; align-items:center; justify-content:center; width:30px; flex-shrink:0;
+    color:var(--teal); font-size:1.1rem;
+  }
+  @media (max-width:720px){
+    .flow-pipeline{ flex-direction:column; }
+    .flow-step + .flow-step{ border-left:1px solid var(--rule); border-top:none; }
+    .flow-arrow{ width:auto; height:22px; transform:rotate(90deg); }
+  }
+  .keyword-cloud{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:44px; }
+
+  /* ---------- OUTPUTS TABLE ---------- */
+  .outputs-wrap{ margin-top:40px; overflow-x:auto; }
+  table.outputs{ width:100%; border-collapse:collapse; font-size:0.88rem; }
+  table.outputs caption{ text-align:left; font-weight:700; margin-bottom:14px; font-size:0.98rem; }
+  table.outputs th{
+    text-align:left; padding:12px 14px; background:var(--paper-dim);
+    border-bottom:1px solid var(--rule-strong); font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem; letter-spacing:.03em; color:var(--ink-soft); font-weight:500;
+  }
+  table.outputs td{
+    padding:14px; border-bottom:1px solid var(--rule); vertical-align:top; color:var(--ink-soft);
+  }
+  table.outputs td.type{ color:var(--ink); font-weight:700; white-space:nowrap; }
+  table.outputs a{
+    color:var(--teal); text-decoration:none; border-bottom:1px solid var(--teal-soft);
+  }
+  table.outputs a:hover{ border-bottom-color:var(--teal); }
+  .outputs-note{
+    margin-top:14px; font-size:0.8rem; color:var(--ink-faint);
+    border-left:2px solid var(--rule-strong); padding-left:12px;
+  }
+
+  /* ---------- PROJECTS ---------- */
+  .projects{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule); border:1px solid var(--rule); }
+  .proj{ background:var(--paper); padding:28px; transition:background .2s ease; }
+  .proj:hover{ background:var(--paper-dim); }
+  .proj-id{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--amber); }
+  .proj h3{ font-size:1.08rem; margin-top:10px; line-height:1.4; }
+  .proj p{ color:var(--ink-soft); font-size:0.86rem; margin-top:10px; }
+  @media (max-width:720px){ .projects{ grid-template-columns:1fr; } }
+
+  .proj.featured{
+    grid-column:1 / -1; display:grid; grid-template-columns:200px 1fr;
+    gap:26px; padding:26px;
+  }
+  .proj.featured .poster-thumb{
+    display:block; border:1px solid var(--rule-strong); border-radius:2px; overflow:hidden;
+  }
+  .proj.featured .poster-thumb img{ width:100%; display:block; transition:transform .3s ease; }
+  .proj.featured .poster-thumb:hover img{ transform:scale(1.04); }
+  .proj.featured .tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .proj.featured .tag{
+    font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--teal);
+    border:1px solid var(--teal); padding:3px 9px; border-radius:2px;
+  }
+  @media (max-width:640px){ .proj.featured{ grid-template-columns:1fr; } }
+
+  /* ---------- CONTACT ---------- */
+  .contact h2{ font-size:1.9rem; }
+  .contact-note{ margin-top:14px; color:var(--ink-soft); font-size:0.92rem; max-width:52ch; }
+  .contact-links{ margin-top:28px; display:flex; flex-direction:column; gap:2px; }
+  .contact-links a{
+    text-decoration:none; font-family:'IBM Plex Mono',monospace; font-size:0.92rem;
+    display:flex; align-items:center; gap:12px; padding:12px 0;
+    border-bottom:1px solid var(--rule); color:var(--ink-soft);
+    transition:color .2s ease, padding-left .2s ease;
+  }
+  .contact-links a:hover{ color:var(--ink); padding-left:6px; }
+  .contact-links a .arrow{ color:var(--teal); }
+
+  footer{ padding:32px 0; }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  footer p{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--ink-faint); }
+
+  /* ---------- EDIT MODE ---------- */
+  #editableRoot.editing{ cursor:text; }
+  #editableRoot.editing :is(h1,h2,h3,p,li,span,a,td,div):hover{
+    outline:1px dashed var(--teal); outline-offset:3px; background:var(--teal-soft);
+  }
+  #edit-toolbar{
+    position:fixed; right:20px; bottom:20px; z-index:100;
+    background:var(--ink); color:var(--paper); border-radius:8px;
+    padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,0.18);
+    display:flex; align-items:center; gap:10px; font-family:var(--font-kr);
+  }
+  #edit-toolbar button{
+    font-family:var(--font-kr); font-size:0.85rem; font-weight:700;
+    border:none; border-radius:5px; padding:9px 14px; cursor:pointer;
+    background:var(--teal); color:#fff; transition:opacity .15s ease;
+  }
+  #edit-toolbar button:hover{ opacity:0.85; }
+  #edit-toolbar button.secondary{ background:var(--amber); }
+  #edit-toolbar #editStatus{
+    font-size:0.75rem; color:#C9CFCC; max-width:150px; line-height:1.4;
+  }
+  @media (max-width:600px){
+    #edit-toolbar{ left:14px; right:14px; flex-wrap:wrap; }
+    #edit-toolbar #editStatus{ order:3; max-width:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="editableRoot">
+<header class="nav">
+  <div class="nav-inner">
+    <div class="nav-name">박예담<span class="dim">Statistics Portfolio</span></div>
+    <nav>
+      <ul>
+        <li><a href="#about">소개</a></li>
+        <li><a href="#skills">역량</a></li>
+        <li><a href="#research">연구·철학</a></li>
+        <li><a href="#activities">활동·연구</a></li>
+        <li><a href="#projects">프로젝트</a></li>
+        <li><a href="#contact">연락처</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <svg class="hero-curve" viewBox="0 0 1000 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <g class="dna" opacity="0.16">
+      <path d="M0,310 C50,290 100,290 150,310 C200,330 250,330 300,310 C350,290 400,290 450,310 C500,330 550,330 600,310 C650,290 700,290 750,310 C800,330 850,330 900,310 C950,290 1000,290 1000,310" fill="none" stroke="var(--teal)" stroke-width="1.6"/>
+      <path d="M0,310 C50,330 100,330 150,310 C200,290 250,290 300,310 C350,330 400,330 450,310 C500,290 550,290 600,310 C650,330 700,330 750,310 C800,290 850,290 900,310 C950,330 1000,330 1000,310" fill="none" stroke="var(--amber)" stroke-width="1.6"/>
+      <g stroke="var(--ink-faint)" stroke-width="1">
+        <line x1="50" y1="293" x2="50" y2="327"/>
+        <line x1="200" y1="293" x2="200" y2="327"/>
+        <line x1="350" y1="293" x2="350" y2="327"/>
+        <line x1="500" y1="293" x2="500" y2="327"/>
+        <line x1="650" y1="293" x2="650" y2="327"/>
+        <line x1="800" y1="293" x2="800" y2="327"/>
+        <line x1="950" y1="293" x2="950" y2="327"/>
+      </g>
+    </g>
+    <path class="fill" d="M40,70 L150,70 L150,120 L280,120 L280,150 L380,150 L380,190 L500,190 L500,215 L620,215 L620,245 L760,245 L760,270 L900,270 L900,290 L960,290 L960,320 L40,320 Z" />
+    <path class="line" d="M40,70 L150,70 L150,120 L280,120 L280,150 L380,150 L380,190 L500,190 L500,215 L620,215 L620,245 L760,245 L760,270 L900,270 L900,290 L960,290" />
+    <g class="ticks" stroke="var(--teal)" stroke-width="1.4">
+      <line x1="100" y1="65" x2="100" y2="75"/>
+      <line x1="210" y1="115" x2="210" y2="125"/>
+      <line x1="330" y1="145" x2="330" y2="155"/>
+      <line x1="440" y1="185" x2="440" y2="195"/>
+      <line x1="560" y1="210" x2="560" y2="220"/>
+      <line x1="690" y1="240" x2="690" y2="250"/>
+      <line x1="830" y1="265" x2="830" y2="275"/>
+    </g>
+  </svg>
+  <div class="wrap hero-inner">
+    <div class="eyebrow">STATISTICS PORTFOLIO</div>
+    <h1>박예담</h1>
+    <p class="affil">이화여자대학교 통계학과 23학번 · 컴퓨터의학 복수전공 · 경영학 부전공</p>
+    <p class="interest">관심 분야 — 의학통계 · 생존분석 · 생명과학 기반 질병 메커니즘 연구</p>
+    <div class="stat-row">
+      <div class="stat"><span class="n">2</span><span class="l">참여 연구실</span></div>
+      <div class="stat"><span class="n">2</span><span class="l">주요 프로젝트</span></div>
+      <div class="stat"><span class="n">3</span><span class="l">전공/부전공</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-num">01</span>
+      <h2>소개</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="about-grid reveal">
+      <div>
+        <p>저는 질병의 발생과 진행을 분자 및 세포 수준에서 이해하고, 이러한 생명현상을 통계적·확률적 모델로 설명하는 연구에 관심이 있습니다. 특히 베이지안 통계를 활용하여 불확실한 생물학적 데이터를 통합하고, 새로운 증거가 축적됨에 따라 질병의 메커니즘과 예후를 추론하는 연구에 흥미를 가지고 있습니다.</p>
+        <p>이를 위해 통계학을 기반으로 생명과학을 함께 공부하며, 생물학적 지식과 데이터 분석을 융합하는 연구자가 되고자 합니다. 이화여자대학교 통계학과에 재학 중이며, 컴퓨터의학을 복수전공해 통계 모델링의 대상이 되는 생명현상에 대한 이해를 함께 넓혀가고 있습니다.</p>
+        <p>지금까지 직접 수행한 연구는 고신대학교 예방의학교실에서 GBD 2023 자료를 활용해 동아시아 국가의 사망구조를 분석한 3개월간의 프로젝트입니다. 위에서 말씀드린 방향은 이 경험을 바탕으로 앞으로 발전시켜가고 싶은 연구 관심사입니다.</p>
+      </div>
+      <ul class="strength-list">
+        <li>R(tidyverse, ggplot2) 기반 분석/시각화</li>
+        <li>Python 데이터 분석 및 기본 모델링</li>
+        <li>통계적 추론(추정/가설검정)과 모델 가정 이해</li>
+        <li>연구 경험 기반의 문제정의 → 분석 → 해석/전달</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-num">02</span>
+      <h2>역량</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="skill-groups reveal">
+      <div class="skill-card">
+        <h3>Data / Stats<span class="cat-en">데이터·통계</span></h3>
+        <div class="skill-tags">
+          <span class="skill-tag">R</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">통계 모델링</span>
+          <span class="skill-tag">데이터 시각화</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <h3>Collaboration<span class="cat-en">협업</span></h3>
+        <div class="skill-tags">
+          <span class="skill-tag">GitHub (버전관리)</span>
+          <span class="skill-tag">문서화/리포팅</span>
+          <span class="skill-tag">발표 자료 제작</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <h3>Tools<span class="cat-en">도구</span></h3>
+        <div class="skill-tags">
+          <span class="skill-tag">Excel</span>
+          <span class="skill-tag">PowerPoint</span>
+          <span class="skill-tag">Canva/미리캔버스</span>
+          <span class="skill-tag">CapCut/Final Cut Pro</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="research">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-num">03</span>
+      <h2>연구 관심사 · 목표와 철학</h2>
+      <span class="rule"></span>
+    </div>
+
+    <p class="subhead">RESEARCH INTERESTS</p>
+    <p style="color:var(--ink-soft); font-size:0.95rem; max-width:66ch; margin-bottom:8px;">
+      저는 질병의 발생과 진행을 분자 및 세포 수준에서 이해하고, 이러한 생명현상을 통계적·확률적 모델로 설명하는 연구에 관심이 있습니다. 특히 베이지안 통계를 활용하여 불확실한 생물학적 데이터를 통합하고, 새로운 증거가 축적됨에 따라 질병의 메커니즘과 예후를 추론하는 연구에 흥미를 가지고 있습니다.
+    </p>
+    <p style="color:var(--ink-soft); font-size:0.95rem; max-width:66ch; margin-bottom:14px;">
+      이를 위해 통계학을 기반으로 생명과학을 함께 공부하며, 생물학적 지식과 데이터 분석을 융합하는 연구자가 되고자 합니다. 생명과학은 통계 모델링의 대상이 되는 현상을 이해하기 위한 배경 지식이며, 연구의 중심은 어디까지나 통계학에 있습니다.
+    </p>
+    <p style="font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--ink-faint); margin-bottom:32px; border-left:2px solid var(--rule-strong); padding-left:12px;">
+      ※ 아래는 앞으로 발전시키고 싶은 연구 방향이며, 지금까지 직접 수행한 연구는 <a href="#projects" style="color:var(--teal);">GBD 2023 기반 동아시아 사망구조 분석 프로젝트</a>입니다.
+    </p>
+
+    <div class="flow-pipeline reveal">
+      <div class="flow-step">
+        <span class="step-tag">STEP 1</span>
+        <h4>생명과학</h4>
+        <div class="flow-tags">
+          <span>분자생물학</span><span>세포생물학</span><span>면역학</span><span>유전학</span><span>암생물학</span>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="step-tag">STEP 2</span>
+        <h4>데이터</h4>
+        <div class="flow-tags">
+          <span>임상 데이터</span><span>유전체 데이터</span><span>단백질 데이터</span><span>RNA sequencing</span><span>Multi-omics</span>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="step-tag">STEP 3</span>
+        <h4>통계</h4>
+        <div class="flow-tags">
+          <span>Survival Analysis</span><span>Bayesian Statistics</span><span>Causal Inference</span><span>Machine Learning / AI</span>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="step-tag">STEP 4</span>
+        <h4>목표</h4>
+        <div class="flow-tags">
+          <span>질병 기전 규명</span><span>바이오마커 발굴</span><span>정밀의료</span><span>맞춤형 치료</span><span>신약 개발 지원</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="subhead">평소 관심 있게 파고드는 키워드</p>
+    <div class="keyword-cloud reveal">
+      <span class="skill-tag">PRP 성장인자</span>
+      <span class="skill-tag">EGF</span>
+      <span class="skill-tag">줄기세포</span>
+      <span class="skill-tag">IL-10 receptor</span>
+      <span class="skill-tag">Macrophage polarization</span>
+      <span class="skill-tag">Cytokine</span>
+      <span class="skill-tag">Acne</span>
+      <span class="skill-tag">Biomarker</span>
+      <span class="skill-tag">Cox model</span>
+      <span class="skill-tag">DeepSurv</span>
+      <span class="skill-tag">AI 기반 질병 예후 예측</span>
+    </div>
+
+    <div class="interest-grid reveal">
+      <div class="interest-card">
+        <span class="tag">01</span>
+        <h3>질병 기전의 생물통계학적 규명</h3>
+        <p>왜 같은 질환이라도 환자마다 예후가 다른지, 어떤 바이오마커가 질병의 진행을 예측하는지를 생물학적 지식과 통계 모델로 함께 설명하는 데 관심이 있습니다.</p>
+      </div>
+      <div class="interest-card">
+        <span class="tag">02</span>
+        <h3>치료 효과·생존율 평가</h3>
+        <p>새로운 치료가 실제 생존율을 얼마나 향상시키는지, 생존분석과 베이지안 통계로 평가하는 연구를 하고 싶습니다.</p>
+      </div>
+      <div class="interest-card">
+        <span class="tag">03</span>
+        <h3>의료 AI 기반 예후 예측</h3>
+        <p>DeepSurv 등 AI가 임상 데이터를 이용해 환자의 질병 경과를 얼마나 정확하게 예측할 수 있는지에 흥미를 느낍니다.</p>
+      </div>
+    </div>
+
+    <p class="subhead">관심 있는 논문 / 레퍼런스</p>
+    <ul class="paper-list reveal">
+      <li>
+        <span class="p-idx">01</span>
+        <div class="p-body">
+          <div class="p-title">Kim, J., Lee, D., et al. "BDDN: Bayesian dynamic differential network analysis in cancer proteomics." <em>BMC Bioinformatics</em> (2026)</div>
+          <div class="p-why">암의 진행과 치료 반응을 좌우하는 단백질-단백질 상호작용의 시간에 따른 변화를 베이지안 동적 네트워크로 추론한 연구 — 약물 저항성과 관련된 상호작용 패턴 변화를 포착합니다.</div>
+        </div>
+      </li>
+      <li>
+        <span class="p-idx">02</span>
+        <div class="p-body">
+          <div class="p-title">Chakraborty, M., Baladandayuthapani, V., Bhadra, A., Ha, M. J. "Bayesian robust learning in chain graph models for integrative pharmacogenomics." <em>Annals of Applied Statistics</em>, 18(4) (2024)</div>
+          <div class="p-why">여러 생물학적 층위(genomic, proteomic 등)에 걸친 의존관계를 베이지안 체인 그래프 모형으로 통합 분석해, 유전체 기반 치료법 개발에 필요한 다층 데이터 통합 문제를 다룹니다.</div>
+        </div>
+      </li>
+      <li>
+        <span class="p-idx">03</span>
+        <div class="p-body">
+          <div class="p-title p-placeholder">논문 제목 / 저자 / 연도를 적어주세요</div>
+          <div class="p-why">관심 이유를 한 줄로 적어주세요</div>
+        </div>
+      </li>
+    </ul>
+
+    <p class="subhead">PHILOSOPHY</p>
+    <div class="philosophy-box reveal">
+      <p class="p-quote">저에게 통계는 그 자체가 목적이 아니라, 질병을 이해하는 가장 강력한 도구입니다. 질병의 발생 기전과 치료 효과를 데이터로 규명하고 싶습니다.</p>
+    </div>
+
+    <p class="subhead">GOALS</p>
+    <ul class="goal-list reveal">
+      <li>생물통계·의학통계를 연구하시는 통계학과 교수님 연구실을 중심으로 대학원에 진학하는 것이 목표입니다.</li>
+      <li>생존분석·베이지안 통계·머신러닝을 활용해 임상·생물학적 데이터를 분석하고, 바이오마커 발굴과 정밀의료 연구에 기여하는 통계학자로 성장하고 싶습니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="activities">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-num">04</span>
+      <h2>활동 · 연구</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="tl reveal">
+      <div class="tl-group">
+        <div class="tl-year">2025</div>
+        <div class="tl-item">
+          <div class="t-title">밀알복지재단 대학생 기자단 6기<span class="t-period">2025.03 – 2025.10</span></div>
+          <div class="t-desc">콘텐츠 기획/제작, 취재 및 기사 작성</div>
+        </div>
+        <div class="tl-item">
+          <div class="t-title">서초우면꿈터 청소년 멘토링 봉사<span class="t-period">2024.12 – 2026.02</span></div>
+          <div class="t-desc">학습 지원 및 정서 멘토링</div>
+        </div>
+        <div class="tl-item">
+          <div class="t-title">과학생회 기획부장<span class="t-period">2025</span></div>
+          <div class="t-desc">학과 행사/프로그램 기획·운영</div>
+        </div>
+      </div>
+      <div class="tl-group">
+        <div class="tl-year">Research &amp; Academic</div>
+        <div class="tl-item">
+          <div class="t-title">김세환 교수 연구실</div>
+          <div class="t-desc">학부 연구 인턴/조교, ML·DL 기반 분석 참여, 생존분석(DeepSurv) 논문 분석</div>
+        </div>
+        <div class="tl-item">
+          <div class="t-title">김익한 교수 연구실 (고신대 예방의학교실)</div>
+          <div class="t-desc">보건·의료 데이터 분석/데이터 엔지니어링, 논문/학회 참여</div>
+        </div>
+        <div class="tl-item">
+          <div class="t-title">보건학 종합 학술대회</div>
+          <div class="t-desc">포스터 발표</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="outputs-wrap reveal">
+      <table class="outputs">
+        <caption>대표 결과물 (미리보기/요약)</caption>
+        <thead>
+          <tr><th>종류</th><th>링크</th><th>한줄 설명</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="type">Article</td>
+            <td><a href="https://drive.google.com/file/d/1YhxtOFhteE8VXZl_PZ5ElDjdzUfwJOmV/view?usp=sharing" target="_blank" rel="noopener">[Article] 복지 이슈 관련 기사 (밀알복지재단 기자단)</a></td>
+            <td>복지 이슈 취재 후 기사 작성 (기획 → 작성 → 발행)</td>
+          </tr>
+          <tr>
+            <td class="type">Magazine</td>
+            <td><a href="https://www.miral.org/news/webzine.do?mode=view&postIdx=99847&bbsIdx=99847" target="_blank" rel="noopener">[소식지 기획+출연]</a></td>
+            <td>소식지 콘텐츠 기획 및 출연/제작 참여</td>
+          </tr>
+          <tr>
+            <td class="type">Card News</td>
+            <td style="color:var(--ink-faint);">준비 중</td>
+            <td>카드뉴스 형식 콘텐츠 (추가 링크/파일 정리 예정)</td>
+          </tr>
+          <tr>
+            <td class="type">PPT</td>
+            <td><a href="https://drive.google.com/file/d/1Mb-llo4Pds-gSItVARdOYiGWNaoOurS2/view?usp=sharing" target="_blank" rel="noopener">[학생회 제작 ppt]</a></td>
+            <td>행사/홍보 목적 발표자료 제작</td>
+          </tr>
+          <tr>
+            <td class="type">Video</td>
+            <td><a href="https://m.blog.naver.com/mylovepyd03/223918912050" target="_blank" rel="noopener">[Video] 밀알복지재단 밀알콘서트 후기 브이로그 영상</a></td>
+            <td>현장 후기 영상 제작 (촬영/편집/스토리 구성)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="outputs-note">※ 링크 또는 파일은 대표적인 결과물 위주로 선별하여 첨부하였습니다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-num">05</span>
+      <h2>프로젝트</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="projects reveal">
+      <div class="proj featured">
+        <a class="poster-thumb" href="poster-eastasia.png" target="_blank" rel="noopener">
+          <img src="poster-eastasia.png" alt="동아시아 최빈사망연령 포스터">
+        </a>
+        <div>
+          <div class="proj-id">PROJECT-00 · 김익한 교수 연구실 (3개월)</div>
+          <h3>동아시아 국가에서 동일 기대수명수준에서의 최빈사망연령과 수명변이 — GBD2023 자료를 활용한 시계열 분석</h3>
+          <p>고신대학교 김익한 교수 연구실에서 3개월간 진행한 연구입니다. GBD 2023 자료를 활용해 한국·일본·중국·대만·북한·몽골 동아시아 6개국의 1980~2023년 최빈사망연령(modal age at death)과 수명변이(타일지수)를 시계열로 분석하고, 전 세계 평균 및 동일 기대수명 수준에서의 변화 양상을 비교했습니다. PCLM 보간과 CoDe 2.1 모형으로 지표를 산출했고, 분절회귀분석으로 국가별 변곡점과 증감 속도를 비교했습니다. 관련 문헌(동아시아 사망률 수렴에 관한 논문) 발제를 함께 진행했고, 포스터 제작과 학생연구경연 초록 작성을 직접 맡았습니다.</p>
+          <div class="tags">
+            <span class="tag" style="background:var(--teal); color:#fff; border-color:var(--teal);">직접 수행 · 3개월</span>
+            <span class="tag">GBD 2023</span>
+            <span class="tag">최빈사망연령</span>
+            <span class="tag">수명변이 (Theil Index)</span>
+            <span class="tag">분절회귀분석</span>
+            <span class="tag">포스터 발표</span>
+          </div>
+          <div style="margin-top:14px;">
+            <a href="abstract-eastasia.hwp" download style="font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--ink-soft); text-decoration:none; border-bottom:1px dashed var(--rule-strong);">📄 학생연구경연 초록 다운로드 (.hwp)</a>
+          </div>
+        </div>
+      </div>
+      <div class="proj">
+        <div class="proj-id">PROJECT-01 · Team</div>
+        <h3>기후·토양 요인이 작물 수확량에 미치는 영향 분석</h3>
+        <p>팀 프로젝트로 진행한 연구로, 기후 및 토양 관련 변수를 활용해 작물 수확량에 미치는 영향을 통계적으로 분석했습니다.</p>
+      </div>
+      <div class="proj">
+        <div class="proj-id">PROJECT-02</div>
+        <h3>지방줄기세포 유래물질 분석연구</h3>
+        <p>다양한 인자들에 의해 분비되는 지방줄기세포 유래물질을 데이터 기반으로 분석한 연구입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap reveal">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <h2>연락처</h2>
+      <span class="rule"></span>
+    </div>
+    <p class="contact-note">GitHub 링크는 아직 비어있어요 — 레포 주소 알려주시면 채워드릴게요.</p>
+    <div class="contact-links">
+      <a href="mailto:mylovepyd03@ewha.ac.kr"><span class="arrow">→</span> mylovepyd03@ewha.ac.kr</a>
+      <a href="#"><span class="arrow">→</span> github.com/yourname</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 PARK YEDAM — STATISTICS PORTFOLIO</p>
+    <p>이화여자대학교 통계학과</p>
+  </div>
+</footer>
+</div>
+
+<div id="edit-toolbar">
+  <button id="editToggle" type="button">✏️ 편집 모드</button>
+  <button id="saveBtn" type="button" class="secondary" style="display:none;">💾 저장(다운로드)</button>
+  <span id="editStatus"></span>
+</div>
+
+<script id="reveal-script">
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(el => io.observe(el));
+</script>
+
+<script id="edit-script">
+  const root = document.getElementById('editableRoot');
+  const editBtn = document.getElementById('editToggle');
+  const saveBtn = document.getElementById('saveBtn');
+  const status = document.getElementById('editStatus');
+  let editing = false;
+
+  editBtn.addEventListener('click', () => {
+    editing = !editing;
+    root.setAttribute('contenteditable', editing ? 'true' : 'false');
+    root.classList.toggle('editing', editing);
+    editBtn.textContent = editing ? '✓ 편집 종료' : '✏️ 편집 모드';
+    status.textContent = editing ? '글자를 클릭해서 바로 수정하세요' : '';
+    saveBtn.style.display = editing ? 'inline-flex' : 'none';
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const clone = root.cloneNode(true);
+    clone.removeAttribute('contenteditable');
+    clone.classList.remove('editing');
+    const toolbarHTML = document.getElementById('edit-toolbar').outerHTML;
+    const revealScript = document.getElementById('reveal-script').outerHTML;
+    const editScript = document.getElementById('edit-script').outerHTML;
+    const html = '<!DOCTYPE html>\n<html lang="ko">\n'
+      + document.head.outerHTML + '\n<body>\n'
+      + clone.outerHTML + '\n'
+      + toolbarHTML + '\n'
+      + revealScript + '\n'
+      + editScript
+      + '\n</body>\n</html>';
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'portfolio.html';
+    a.click();
+    URL.revokeObjectURL(url);
+    status.textContent = '저장됐어요! 다운로드 폴더를 확인하세요.';
+  });
+</script>
+
+</body>
+</html>
